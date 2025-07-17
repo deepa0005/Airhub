@@ -41,27 +41,31 @@ module.exports.showListings = async (req, res) => {
 
 //create route
 module.exports.createListings = async (req, res, next) => {
-   let response = await geocodingClient.forwardGeocode({
-       query: req.body.listing.location,
+    let response = await geocodingClient.forwardGeocode({
+        query: req.body.listing.location,
         limit: 1
-    })
-        .send();
-      
-      
+    }).send();
 
-    let url = req.file.path;
-    let filename = req.file.filename;
+    let url = "";
+    let filename = "";
+
+    if (req.file) {
+        url = req.file.path;
+        filename = req.file.filename;
+    }
+
     const newListing = new listing(req.body.listing);
     newListing.owner = req.user._id;
     newListing.image = { url, filename };
 
     newListing.geometry = response.body.features[0].geometry;
-      
+
     let savedListing = await newListing.save();
     console.log(savedListing);
     req.flash("success", "Successfully made a new listing!");
     res.redirect("/listings");
 };
+
 
 
 
